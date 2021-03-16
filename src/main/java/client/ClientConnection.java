@@ -1,5 +1,7 @@
 package client;
+
 import server.ChatServer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,15 +11,17 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
-public class ClientConection implements Runnable{
+public class ClientConnection implements Runnable{
     private final Socket socket;
     private final Logger logger;
     private final ChatServer server;
-    public ClientConection(Socket socket, Logger logger, ChatServer server) {
+
+    public ClientConnection(Socket socket, Logger logger, ChatServer server) {
         this.socket = socket;
         this.logger = logger;
         this.server = server;
     }
+
     @Override
     public void run() {
         try(
@@ -28,7 +32,7 @@ public class ClientConection implements Runnable{
             PrintWriter output = new PrintWriter(outputStream, true);
             while (input.hasNext()) {
                 String content = input.nextLine();
-                List<ClientConection> other = server.getClients();
+                List<ClientConnection> other = server.getClients();
                 sendToAll(content, other);
             }
             logger.info("Client closed connection: " + socket.getInetAddress());
@@ -37,10 +41,12 @@ public class ClientConection implements Runnable{
             e.printStackTrace();
         }
     }
+
     public OutputStream getOutput() throws IOException {
         return socket.getOutputStream();
     }
-    public void sendToAll(String message, List<ClientConection> clients){
+
+    public void sendToAll(String message, List<ClientConnection> clients){
         clients.forEach(client -> {
             try{
                 PrintWriter writer = new PrintWriter(client.getOutput(), true);
